@@ -21,8 +21,3 @@ Frontend: HTML5, CSS3, Bootstrap 5, Font Awesome
 Autenticação: Django Auth com sistema de perfis
 Upload: Pillow para tratamento de imagens
 Deploy: Compatível com Render, Railway, PythonAnywhere
-📦 Instalação
-1. Clone o repositório
-bash
-git clone https://github.com/seu-usuario/caio-guia.git
-cd caio-guia
