@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Guia Comercial{% endblock %}
+
+{% block content %}
+<div class="container-lg py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card fade-in-up">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">
+                        <i class="fas fa-sign-in-alt"></i> Painel Administrativo
+                    </h2>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Usuário</label>
+                            <input type="text" class="form-control {% if form.username.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.username.id_for_label }}" name="username" required>
+                            {% if form.username.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.username.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">Senha</label>
+                            <input type="password" class="form-control {% if form.password.errors %}is-invalid{% endif %}" 
+                                   id="{{ form.password.id_for_label }}" name="password" required>
+                            {% if form.password.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.password.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-3">
+                            <i class="fas fa-lock-open"></i> Entrar
+                        </button>
+                    </form>
+
+                    <div class="text-center text-muted mt-4">
+                        <p>Acesso restrito a administradores</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

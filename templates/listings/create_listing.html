@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card bg-dark text-white">
+                <div class="card-body p-4">
+                    <h2 class="text-primary mb-3">
+                        <i class="fas fa-plus-circle"></i> Criar Novo Anúncio
+                    </h2>
+                    <p class="text-muted mb-4">Preencha os dados abaixo para criar seu anúncio. Após envio, aguarde aprovação do administrador.</p>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            <strong>Erro:</strong> Corrija os campos abaixo.
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="row g-3">
+                            <!-- Nome do Negócio -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-store"></i> {{ form.business_name.label }} *
+                                </label>
+                                {{ form.business_name }}
+                                {% if form.business_name.errors %}
+                                    <div class="text-danger small">{{ form.business_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Categoria -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-tag"></i> {{ form.category.label }} *
+                                </label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="text-danger small">{{ form.category.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Cidade - ADICIONEI AQUI -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-map-marker-alt"></i> {{ form.cidade.label }} *
+                                </label>
+                                {{ form.cidade }}
+                                {% if form.cidade.errors %}
+                                    <div class="text-danger small">{{ form.cidade.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Endereço -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-home"></i> {{ form.address.label }}
+                                </label>
+                                {{ form.address }}
+                            </div>
+
+                            <!-- Descrição -->
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-pen"></i> {{ form.description.label }} *
+                                </label>
+                                {{ form.description }}
+                                {% if form.description.errors %}
+                                    <div class="text-danger small">{{ form.description.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Telefone -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-phone"></i> {{ form.phone.label }} *
+                                </label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small">{{ form.phone.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- WhatsApp -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fab fa-whatsapp"></i> {{ form.whatsapp.label }}
+                                </label>
+                                {{ form.whatsapp }}
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-envelope"></i> {{ form.email.label }} *
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Logo -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-image"></i> {{ form.logo.label }}
+                                </label>
+                                {{ form.logo }}
+                                <div class="form-text text-muted">Máximo 2MB. Formatos: JPEG, PNG, GIF, WebP</div>
+                                {% if form.logo.errors %}
+                                    <div class="text-danger small">{{ form.logo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg flex-grow-1">
+                                <i class="fas fa-paper-plane"></i> Enviar Anúncio
+                            </button>
+                            <a href="{% url 'meus_anuncios' %}" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,90 @@
+Emoji	Nome	Uso comum
+🎭	Teatro	Cultura, eventos
+🎨	Ateliê	Arte, pintura
+🎵	Música	Estúdio, aulas
+🏋️	Academia	Fitness, musculação
+🐕	Pet Shop	Animais
+🌸	Floricultura	Flores, plantas
+🛒	Mercado	Supermercado
+🥖	Padaria	Pães
+🍖	Açougue	Carnes
+📚	Livraria	Livros, papelaria
+👔	Roupas	Moda, vestuário
+👟	Calçados	Tênis, sapatos
+💍	Joalheria	Joias, alianças
+🎁	Presentes	Loja de presentes
+🏠	Imobiliária	Casas, aluguel
+🔧	Oficina mecânica	Auto, motos
+🚗	Automóveis	Concessionária, peças
+⛽	Posto de gasolina	Combustível
+🧰	Serviços gerais	Manutenção, reparos
+🧹	Limpeza	Faxina, diarista
+🧑‍💼	Escritório	Advocacia, contabilidade
+💻	Informática	Tecnologia, assistência
+📱	Celulares	Assistência, vendas
+🖨️	Gráfica	Impressão, xerox
+📸	Fotógrafo	Foto, vídeo
+✂️	Alfaiate/Barbearia	Costura, corte
+🏥	Hospital	Clínicas, saúde
+💊	Farmácia	Drogaria
+🦷	Dentista	Odontologia
+💇	Salão de beleza	Cabelo, estética
+💅	Manicure	Unhas
+💆	Spa	Massagem, estética
+👓	Ótica	Óculos
+🍽️	Restaurante	Comida em geral
+☕	Cafeteria	Café, lanches
+🍕	Pizzaria	Pizza
+🍔	Hamburgueria	Lanches, fast food
+🍰	Confeitaria	Doces, bolos
+🍻	Bar	Bebidas, petiscos
+🥘	Restaurante caseiro	Comida brasileira
+🥩	Churrascaria	Carnes
+🍣	Sushi/Japonês	Comida japonesa
+🍜	Lamen	Comida oriental
+🏢	Prédio comercial	Escritórios, empresas
+🏬	Loja de departamento	Shopping, magazines
+🏪	Loja de conveniência	Mercadinho, 24h
+🏫	Escola	Educação, cursos
+🏦	Banco	Financeiro, crédito
+🏨	Hotel	Hospedagem
+🏩	Love hotel	Motel
+🏛️	Prédio clássico	Cartório, fórum, governo
+
+Emoji	Profissão
+👨‍🔧	Mecânico
+👩‍🔧	Mecânica
+👨‍🔬	Técnico
+🔌	Eletricista
+🔧	Encanador
+🧰	Marceneiro
+🎨	Pintor
+🧱	Pedreiro
+🔨	Carpinteiro
+👷	Engenheiro
+👷‍♀️	Engenheira
+🏗️	Arquiteto
+🧱	Mestre de Obras
+🏠	Corretor de Imóveis
+👨‍🍳	Chef de Cozinha
+👩‍🍳	Chef de Cozinha
+🧑‍🍳	Cozinheiro
+🍰	Confeiteiro
+🍕	Pizzaiolo
+🥖	Padeiro
+
+👨‍🌾	Agricultor
+🚛	Motorista
+🚕	Taxista
+📦	Entregador
+🧹	Diarista/Faxineira
+👶	Babá
+🐕	Pet Sitter
+✍️	Escritor
+🎤	Cantor/Músico
+🧘	Personal Trainer
+👮	Segurança
+🧑‍🚒	Bombeiro
+👨‍✈️	Piloto
+
+

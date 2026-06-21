@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-white mb-4">Meus Anúncios</h2>
+    <a href="{% url 'create_listing' %}" class="btn btn-success mb-4">
+        <i class="fas fa-plus"></i> Novo Anúncio
+    </a>
+    
+    {% if listings %}
+        <div class="row">
+        {% for listing in listings %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card bg-dark text-white h-100">
+                    {% if listing.logo %}
+                        <img src="{{ listing.logo.url }}" class="card-img-top" style="height: 200px; object-fit: cover;" alt="{{ listing.business_name }}">
+                    {% else %}
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="fas fa-store fa-3x text-muted"></i>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">{{ listing.business_name }}</h5>
+                        
+                        <span class="badge bg-{% if listing.status == 'approved' %}success{% elif listing.status == 'pending' %}warning text-dark{% else %}danger{% endif %} mb-2">
+                            {{ listing.get_status_display }}
+                        </span>
+                        
+                        <span class="badge bg-{% if listing.plan == 'paid' %}info{% else %}secondary{% endif %} mb-2">
+                            {{ listing.get_plan_display }}
+                        </span>
+                        
+                        <p class="card-text text-muted small mb-2">
+                            <i class="fas fa-eye"></i> {{ listing.views }} visualizações<br>
+                            <i class="fas fa-tag"></i> {{ listing.category.name|default:"Sem categoria" }}<br>
+                            <i class="fas fa-map-marker-alt"></i> {{ listing.cidade.nome|default:"-" }}
+                        </p>
+                        
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'editar_anuncio' listing.id %}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+                            {% if listing.status == 'approved' %}
+                            <a href="{% url 'listing_detail' listing.slug %}" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-eye"></i> Ver
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer text-muted small">
+                        Criado em {{ listing.created_at|date:"d/m/Y" }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Você ainda não tem anúncios cadastrados.
+            <a href="{% url 'create_listing' %}" class="alert-link">Cadastre o primeiro!</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

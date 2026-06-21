@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.business_name }} - Guia Comercial{% endblock %}
+
+{% block content %}
+<div class="container-lg py-5">
+    <div class="row gap-4">
+        <!-- Main Content -->
+         <div class="mb-4 fade-in-up">
+            <a href="javascript:history.back()" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">
+                <i class="fas fa-home"></i> Início
+            </a>
+        </div>
+        <div class="col-lg-8">
+            <div class="card fade-in-up mb-4">
+                <!-- Image -->
+                {% if listing.logo %}
+                <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 400px; object-fit: cover;">
+                {% else %}
+                <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 400px;">
+                    <i class="fas fa-image text-muted" style="font-size: 5rem;"></i>
+                </div>
+                {% endif %}
+
+                <div class="card-body p-4">
+                    <!-- Header -->
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <h1 class="card-title mb-2">{{ listing.business_name }}</h1>
+                            {% if listing.category %}
+                            <p class="text-muted">
+                                <i class="fas fa-tag"></i> {{ listing.category.icon }} {{ listing.category.name }}
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% if listing.is_paid %}
+                        <span class="badge badge-warning" style="font-size: 0.9rem;">
+                            <i class="fas fa-star"></i> Destaque
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h5 class="text-primary mb-3"><i class="fas fa-info-circle"></i> Sobre</h5>
+                        <p class="text-muted" style="line-height: 1.8;">{{ listing.description }}</p>
+                    </div>
+
+                    <!-- Stats -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2);">
+                                <p class="text-muted small mb-1"><i class="fas fa-eye"></i> Visualizações</p>
+                                <h4 class="text-primary mb-0">{{ listing.views }}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2);">
+                                <p class="text-muted small mb-1"><i class="fas fa-calendar"></i> Publicado</p>
+                                <h4 class="text-primary mb-0">{{ listing.created_at|date:'d/m/Y' }}</h4>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <!-- Contact Section -->
+                    <h5 class="text-primary mb-3"><i class="fas fa-phone"></i> Contato</h5>
+
+                    <div class="row g-3 mb-4">
+                        {% if listing.address %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(26, 31, 58, 0.5); border: 1px solid rgba(0, 212, 255, 0.2);">
+                                <p class="text-muted small mb-2"><i class="fas fa-map-marker-alt"></i> Endereço</p>
+                                <p class="text-light mb-0">{{ listing.address }}</p>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if listing.phone %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(26, 31, 58, 0.5); border: 1px solid rgba(0, 212, 255, 0.2);">
+                                <p class="text-muted small mb-2"><i class="fas fa-phone"></i> Telefone</p>
+                                <a href="tel:{{ listing.phone }}" class="text-primary text-decoration-none">{{ listing.phone }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if listing.whatsapp %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(26, 31, 58, 0.5); border: 1px solid rgba(0, 212, 255, 0.2);">
+                                <p class="text-muted small mb-2"><i class="fab fa-whatsapp"></i> WhatsApp</p>
+                                <a href="https://wa.me/{{ listing.whatsapp|safe }}" target="_blank" class="text-primary text-decoration-none">{{ listing.whatsapp }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if listing.email %}
+                        <div class="col-md-6">
+                            <div class="p-3 rounded" style="background: rgba(26, 31, 58, 0.5); border: 1px solid rgba(0, 212, 255, 0.2);">
+                                <p class="text-muted small mb-2"><i class="fas fa-envelope"></i> Email</p>
+                                <a href="mailto:{{ listing.email }}" class="text-primary text-decoration-none">{{ listing.email }}</a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="row g-2">
+                        {% if listing.whatsapp %}
+                        <div class="col-md-6">
+                            <a href="https://wa.me/{{ listing.whatsapp|safe }}" target="_blank" class="btn btn-primary w-100 btn-lg">
+                                <i class="fab fa-whatsapp"></i> Enviar WhatsApp
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        {% if listing.phone %}
+                        <div class="col-md-6">
+                            <a href="tel:{{ listing.phone }}" class="btn btn-outline-primary w-100 btn-lg">
+                                <i class="fas fa-phone"></i> Ligar
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="row g-2 mt-2">
+                        {% if listing.email %}
+                        <div class="col-md-6">
+                            <a href="mailto:{{ listing.email }}" class="btn btn-outline-primary w-100">
+                                <i class="fas fa-envelope"></i> Enviar Email
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <div class="col-md-6">
+                            <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#shareModal">
+                                <i class="fas fa-share-alt"></i> Compartilhar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       
+
+            <!-- Anúncios Relacionados -->
+            {% if related_listings %}
+            <div class="card fade-in-up">
+                <div class="card-body">
+                    <h5 class="card-title text-primary mb-3"><i class="fas fa-link"></i> Relacionados</h5>
+                    <div class="d-flex flex-column gap-2">
+                        {% for related in related_listings %}
+                        <a href="/listing/{{ related.id }}/" class="text-decoration-none">
+                            <div class="p-2 rounded" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); transition: all 0.3s ease;">
+                                <p class="text-light small mb-0">{{ related.business_name }}</p>
+                                <p class="text-muted small mb-0">{{ related.category.name }}</p>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Share Modal -->
+<div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="background: var(--card-bg); border: 1px solid rgba(0, 212, 255, 0.2);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-primary"><i class="fas fa-share-alt"></i> Compartilhar</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="d-grid gap-2">
+                    <a href="https://wa.me/?text=Confira%20este%20an%C3%BAncio:%20{{ listing.business_name }}%20-%20{{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fab fa-whatsapp"></i> Compartilhar no WhatsApp
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fab fa-facebook"></i> Compartilhar no Facebook
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text={{ listing.business_name }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fab fa-twitter"></i> Compartilhar no Twitter
+                    </a>
+                    <button type="button" class="btn btn-outline-primary" onclick="copyLink()">
+                        <i class="fas fa-link"></i> Copiar Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyLink() {
+        const url = window.location.href;
+        navigator.clipboard.writeText(url).then(() => {
+            alert('Link copiado para a área de transferência!');
+        });
+    }
+</script>
+{% endblock %}
