@@ -29,6 +29,15 @@
                         <span class="badge bg-{% if listing.plan == 'paid' %}info{% else %}secondary{% endif %} mb-2">
                             {{ listing.get_plan_display }}
                         </span>
+                        {% if listing.plan == 'paid' %}
+                            <span class="badge bg-{% if listing.esta_destacado %}warning text-dark{% else %}danger{% endif %} mb-2">
+                                {% if listing.esta_destacado %}
+                                    {% if listing.data_expiracao %}Destaque até {{ listing.data_expiracao|date:'d/m/Y' }}{% else %}Destaque sem prazo{% endif %}
+                                {% else %}
+                                    Destaque vencido
+                                {% endif %}
+                            </span>
+                        {% endif %}
                         
                         <p class="card-text text-muted small mb-2">
                             <i class="fas fa-eye"></i> {{ listing.views }} visualizações<br>

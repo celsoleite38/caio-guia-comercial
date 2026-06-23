@@ -1,13 +1,44 @@
+from datetime import timedelta
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.db.models import Q, Sum
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
-from .models import Listing, Category, AdminLog, Cidade
+from .models import Listing, ListingImage, Category, AdminLog, Cidade
 from .forms import ListingForm
+
+GALERIA_MAX_FOTOS = 5
+GALERIA_MAX_TAMANHO_MB = 2
+
+
+def _salvar_galeria(listing, arquivos):
+    """
+    Salva as fotos extras enviadas no formulário de anúncio. Limita a
+    quantidade total (já existentes + novas) e o tamanho de cada arquivo,
+    devolvendo uma lista de avisos pra mostrar ao usuário quando algo é
+    ignorado (em vez de travar o cadastro inteiro por causa de uma foto).
+    """
+    avisos = []
+    vagas = GALERIA_MAX_FOTOS - listing.galeria.count()
+    proxima_ordem = listing.galeria.count()
+
+    for arquivo in arquivos:
+        if vagas <= 0:
+            avisos.append(f'Limite de {GALERIA_MAX_FOTOS} fotos na galeria atingido — algumas fotos não foram salvas.')
+            break
+        if arquivo.size > GALERIA_MAX_TAMANHO_MB * 1024 * 1024:
+            avisos.append(f'"{arquivo.name}" ultrapassa {GALERIA_MAX_TAMANHO_MB}MB e foi ignorada.')
+            continue
+        ListingImage.objects.create(listing=listing, imagem=arquivo, ordem=proxima_ordem)
+        proxima_ordem += 1
+        vagas -= 1
+
+    return avisos
 
 
 def is_admin(user):
@@ -34,9 +65,15 @@ def home(request):
     
     if cidade_id:
         listings = listings.filter(cidade_id=cidade_id)  # Agora funciona
-    
-    paid_listings = listings.filter(plan='paid').order_by('-created_at')[:6]
-    free_listings = listings.filter(plan='free').order_by('-created_at')
+
+    # Mesma regra do model `esta_destacado`: pago E (sem prazo OU prazo no futuro).
+    # Expresso aqui como Q pra poder filtrar no banco — assim um plano pago
+    # vencido já some do destaque mesmo se o cron de expiração ainda não rodou.
+    agora = timezone.now()
+    eh_destaque = Q(plan='paid') & (Q(data_expiracao__isnull=True) | Q(data_expiracao__gt=agora))
+
+    paid_listings = listings.filter(eh_destaque).order_by('-created_at')[:6]
+    free_listings = listings.exclude(eh_destaque).order_by('-created_at')
     
     paginator = Paginator(free_listings, 12)
     page_number = request.GET.get('page', 1)
@@ -86,12 +123,17 @@ def create_listing(request):
             listing.owner = request.user
             listing.status = 'pending'
             listing.save()
+
+            avisos = _salvar_galeria(listing, request.FILES.getlist('galeria'))
+            for aviso in avisos:
+                messages.warning(request, aviso)
+
             messages.success(request, 'Anúncio criado! Aguarde aprovação.')
             return redirect('meus_anuncios')
     else:
         form = ListingForm()
     
-    return render(request, 'listings/create_listing.html', {'form': form})
+    return render(request, 'listings/create_listing.html', {'form': form, 'galeria_max_fotos': GALERIA_MAX_FOTOS})
 
 
 @login_required
@@ -127,6 +169,7 @@ def admin_listings(request):
 
 @login_required
 @user_passes_test(is_admin)
+@require_POST
 def approve_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     listing.status = 'approved'
@@ -144,6 +187,7 @@ def approve_listing(request, listing_id):
 
 @login_required
 @user_passes_test(is_admin)
+@require_POST
 def reject_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     reason = request.POST.get('reason', '')
@@ -164,26 +208,38 @@ def reject_listing(request, listing_id):
 
 @login_required
 @user_passes_test(is_admin)
+@require_POST
 def mark_paid(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
-    listing.plan = 'paid'  # Corrigido: era is_paid = True
+    dias = request.POST.get('dias', '').strip()
+
+    listing.plan = 'paid'
+    if dias.isdigit() and int(dias) > 0:
+        listing.data_expiracao = timezone.now() + timedelta(days=int(dias))
+        descricao_prazo = f'destaque por {dias} dias'
+    else:
+        listing.data_expiracao = None
+        descricao_prazo = 'destaque sem prazo definido'
     listing.save()
-    
+
     AdminLog.objects.create(
         admin=request.user,
         listing=listing,
-        action='mark_paid'
+        action='mark_paid',
+        reason=descricao_prazo,
     )
     
-    messages.success(request, f'Anúncio "{listing.business_name}" marcado como pago!')
+    messages.success(request, f'Anúncio "{listing.business_name}" marcado como pago ({descricao_prazo}).')
     return redirect('admin_listings')
 
 
 @login_required
 @user_passes_test(is_admin)
+@require_POST
 def mark_free(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     listing.plan = 'free'  # Corrigido: era is_paid = False
+    listing.data_expiracao = None
     listing.save()
     
     AdminLog.objects.create(
@@ -200,9 +256,9 @@ def mark_free(request, listing_id):
 def admin_dashboard(request):
     """Painel administrativo principal"""
     total_listings = Listing.objects.count()
-    pending = Listing.objects.filter(status='pending').count()
-    approved = Listing.objects.filter(status='approved').count()
-    rejected = Listing.objects.filter(status='rejected').count()
+    pending_count = Listing.objects.filter(status='pending').count()
+    approved_count = Listing.objects.filter(status='approved').count()
+    rejected_count = Listing.objects.filter(status='rejected').count()
     total_views = Listing.objects.filter(status='approved').aggregate(
         total=Sum('views')
     )['total'] or 0
@@ -212,13 +268,51 @@ def admin_dashboard(request):
     
     context = {
         'total_listings': total_listings,
-        'pending': pending,
-        'approved': approved,
-        'rejected': rejected,
+        'pending_count': pending_count,
+        'approved_count': approved_count,
+        'rejected_count': rejected_count,
         'total_views': total_views,
         'pending_listings': pending_listings,
     }
     return render(request, 'listings/admin_dashboard.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def admin_categories(request):
+    """Gerenciamento de categorias: cria pelo form da página e lista as existentes."""
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        icon = request.POST.get('icon', '🏢').strip() or '🏢'
+        description = request.POST.get('description', '').strip()
+
+        if not name:
+            messages.error(request, 'Informe o nome da categoria.')
+        elif Category.objects.filter(name__iexact=name).exists():
+            messages.error(request, f'Já existe uma categoria chamada "{name}".')
+        else:
+            Category.objects.create(name=name, icon=icon, description=description)
+            messages.success(request, f'Categoria "{name}" criada!')
+            return redirect('admin_categories')
+
+    categories = Category.objects.all().order_by('name')
+    return render(request, 'listings/admin_categories.html', {'categories': categories})
+
+
+@login_required
+@user_passes_test(is_admin)
+@require_POST
+def delete_category(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    if category.listings.exists():
+        messages.error(
+            request,
+            f'Não dá pra excluir "{category.name}": ainda há anúncios usando essa categoria.',
+        )
+    else:
+        category.delete()
+        messages.success(request, 'Categoria excluída.')
+    return redirect('admin_categories')
 
 # resto das views igual...
 def signup(request):
@@ -258,6 +352,16 @@ def editar_anuncio(request, listing_id):
             listing = form.save(commit=False)
             listing.status = 'pending'
             listing.save()
+
+            # Remove as fotos que o anunciante marcou pra excluir
+            remover_ids = request.POST.getlist('remover_foto')
+            if remover_ids:
+                listing.galeria.filter(id__in=remover_ids).delete()
+
+            avisos = _salvar_galeria(listing, request.FILES.getlist('galeria'))
+            for aviso in avisos:
+                messages.warning(request, aviso)
+
             messages.success(request, 'Anúncio atualizado! Aguarde nova aprovação.')
             return redirect('meus_anuncios')
     else:
@@ -266,6 +370,7 @@ def editar_anuncio(request, listing_id):
     context = {
         'form': form, 
         'listing': listing,
-        'editando': True
+        'editando': True,
+        'galeria_max_fotos': GALERIA_MAX_FOTOS,
     }
     return render(request, 'listings/create_listing.html', context)

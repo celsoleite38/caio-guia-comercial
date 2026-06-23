@@ -86,5 +86,3 @@ Emoji	Profissão
 👮	Segurança
 🧑‍🚒	Bombeiro
 👨‍✈️	Piloto
-
-

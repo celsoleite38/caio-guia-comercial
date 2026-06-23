@@ -13,7 +13,9 @@ class ListingForm(forms.ModelForm):
             'whatsapp', 
             'email',
             'address', 
-            'logo'
+            'logo',
+            'instagram',
+            'website',
         ]
         labels = {
             'business_name': 'Nome do Negócio',
@@ -25,6 +27,8 @@ class ListingForm(forms.ModelForm):
             'email': 'Email do Negócio *',
             'address': 'Endereço',
             'logo': 'Logo/Foto',
+            'instagram': 'Instagram',
+            'website': 'Site',
         }
         widgets = {
             'description': forms.Textarea(attrs={'rows': 4, 'class': 'form-control'}),
@@ -35,6 +39,8 @@ class ListingForm(forms.ModelForm):
             'whatsapp': forms.TextInput(attrs={'class': 'form-control'}),
             'email': forms.EmailInput(attrs={'class': 'form-control'}),
             'address': forms.TextInput(attrs={'class': 'form-control'}),
+            'instagram': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://instagram.com/seunegocio'}),
+            'website': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'https://seusite.com.br'}),
         }
 
     def __init__(self, *args, **kwargs):

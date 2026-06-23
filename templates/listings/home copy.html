@@ -108,7 +108,7 @@
                                 <i class="fas fa-star"></i> Destaque
                             </span>
                         </div>
-                        <p class="card-text small">{{ listing.description }}</p>
+                        <p class="card-text small">{{ listing.description|truncatewords:20 }}</p>
 
                         {% if listing.category %}
                         <p class="text-muted small mb-2">
@@ -124,33 +124,13 @@
 
                         {% if listing.address %}
                         <p class="text-muted small mb-3">
-                            <i class="fas fa-home"></i> {{ listing.address }}
+                            <i class="fas fa-home"></i> {{ listing.address|truncatewords:5 }}
                         </p>
-                        {% endif %}
-
-                        {% if listing.instagram or listing.website %}
-                        <div class="d-flex gap-2 mb-3">
-                            {% if listing.instagram %}
-                            <a href="{{ listing.instagram }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();" title="Instagram">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            {% endif %}
-                            {% if listing.website %}
-                            <a href="{{ listing.website }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();" title="Site">
-                                <i class="fas fa-globe"></i>
-                            </a>
-                            {% endif %}
-                            {% if listing.galeria.count %}
-                            <span class="badge bg-secondary align-self-center" title="Fotos na galeria">
-                                <i class="fas fa-images"></i> {{ listing.galeria.count }}
-                            </span>
-                            {% endif %}
-                        </div>
                         {% endif %}
 
                         <div class="d-flex gap-2">
                             {% if listing.whatsapp %}
-                            <a href="{{ listing.link_whatsapp }}" target="_blank" class="btn btn-sm btn-outline-primary flex-grow-1" onclick="event.stopPropagation();">
+                            <a href="https://wa.me/55{{ listing.whatsapp|safe }}" target="_blank" class="btn btn-sm btn-outline-primary flex-grow-1" onclick="event.stopPropagation();">
                                 <i class="fab fa-whatsapp"></i> WhatsApp
                             </a>
                             {% endif %}

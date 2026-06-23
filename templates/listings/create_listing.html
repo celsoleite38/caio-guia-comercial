@@ -116,6 +116,56 @@
                                     <div class="text-danger small">{{ form.logo.errors }}</div>
                                 {% endif %}
                             </div>
+
+                            <!-- Instagram -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fab fa-instagram"></i> {{ form.instagram.label }}
+                                </label>
+                                {{ form.instagram }}
+                                <div class="form-text text-muted">Só aparece publicado se o anúncio virar Destaque (plano pago).</div>
+                                {% if form.instagram.errors %}
+                                    <div class="text-danger small">{{ form.instagram.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Site -->
+                            <div class="col-md-6">
+                                <label class="form-label">
+                                    <i class="fas fa-globe"></i> {{ form.website.label }}
+                                </label>
+                                {{ form.website }}
+                                <div class="form-text text-muted">Também exclusivo do plano Destaque.</div>
+                                {% if form.website.errors %}
+                                    <div class="text-danger small">{{ form.website.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <!-- Galeria de fotos -->
+                            <div class="col-12">
+                                <label class="form-label">
+                                    <i class="fas fa-images"></i> Fotos extras (galeria)
+                                </label>
+                                <input type="file" name="galeria" class="form-control" accept="image/*" multiple>
+                                <div class="form-text text-muted">
+                                    Até {{ galeria_max_fotos|default:5 }} fotos, 2MB cada. A galeria só aparece publicada se o anúncio for Destaque (plano pago) —
+                                    pode mandar as fotos desde já que elas ficam guardadas pra quando o plano for liberado.
+                                </div>
+
+                                {% if editando and listing.galeria.exists %}
+                                <div class="d-flex flex-wrap gap-3 mt-3">
+                                    {% for foto in listing.galeria.all %}
+                                    <div class="text-center">
+                                        <img src="{{ foto.imagem.url }}" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px;" alt="">
+                                        <div class="form-check small mt-1">
+                                            <input class="form-check-input" type="checkbox" name="remover_foto" value="{{ foto.id }}" id="remover{{ foto.id }}">
+                                            <label class="form-check-label text-muted" for="remover{{ foto.id }}">remover</label>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
                         </div>
 
                         <hr class="my-4">

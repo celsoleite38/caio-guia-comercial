@@ -14,12 +14,12 @@ urlpatterns = [
     path('meus-anuncios/<int:listing_id>/editar/', views.editar_anuncio, name='editar_anuncio'),
     
     # Painel Admin Customizado - troquei de admin/ pra painel/
-    #path('painel/', views.admin_dashboard, name='admin_dashboard'),
+    path('painel/', views.admin_dashboard, name='admin_dashboard'),
     path('painel/anuncios/', views.admin_listings, name='admin_listings'),
     path('painel/anuncios/<int:listing_id>/aprovar/', views.approve_listing, name='approve_listing'),
     path('painel/anuncios/<int:listing_id>/rejeitar/', views.reject_listing, name='reject_listing'),
     path('painel/anuncios/<int:listing_id>/pago/', views.mark_paid, name='mark_paid'),
     path('painel/anuncios/<int:listing_id>/gratis/', views.mark_free, name='mark_free'),
-    #path('painel/categorias/', views.admin_categories, name='admin_categories'),
-    #path('painel/categorias/<int:category_id>/deletar/', views.delete_category, name='delete_category'),
+    path('painel/categorias/', views.admin_categories, name='admin_categories'),
+    path('painel/categorias/<int:category_id>/deletar/', views.delete_category, name='delete_category'),
 ]
