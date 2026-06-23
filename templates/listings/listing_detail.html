@@ -18,8 +18,11 @@
             <div class="card fade-in-up mb-4">
                 <!-- Image -->
                 {% if listing.logo %}
-                <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 400px; object-fit: cover;">
+                <div class="p-2" style="background: rgba(0, 0, 0, 0.2); height: 150px; display: flex; align-items: center; justify-content: center;">
+                    <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 100%; width: 100%; object-fit: contain;">
+                </div>
                 {% else %}
+...
                 <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 400px;">
                     <i class="fas fa-image text-muted" style="font-size: 5rem;"></i>
                 </div>

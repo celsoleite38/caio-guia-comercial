@@ -9,7 +9,7 @@ urlpatterns = [
     path('anuncio/<slug:slug>/', views.listing_detail, name='listing_detail'),
     path('signup/', views.signup, name='signup'),
     path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
+    path('logout/', views.logout_view, name='logout'),
     path('create/', views.create_listing, name='create_listing'),
     path('meus-anuncios/', views.meus_anuncios, name='meus_anuncios'),
     path('meus-anuncios/<int:listing_id>/editar/', views.editar_anuncio, name='editar_anuncio'),

@@ -1,17 +1,60 @@
 {% extends 'base.html' %}
 
-{% block title %}Guia Comercial - Encontre Negócios Locais{% endblock %}
+{% block title %}Caio indica - Encontre Negócios Locais{% endblock %}
 {% load static %}
 {% block content %}
 <div class="container-lg py-5">
-    <!-- Hero Section -->
-    <div class="hero fade-in-up">
-        <h1>
-            <img src="{% static 'img/3.png' %}" alt="Caio Guia" height="80" class="me-2">
+   
+    <div class="hero fade-in-up py-3 mb-4">
+        <h1 class="fs-3 mb-1 d-flex align-items-center">
+            <img src="{% static 'img/3.png' %}" alt="Caio Guia" height="50" class="me-2">
             Descubra Negócios Locais
         </h1>
-        <p>Encontre comerciantes e profissionais liberais na sua região. <br>Anúncios de qualidade, informações confiáveis e contato direto.</p>
+        <p class="mb-0 text-muted small">Encontre comerciantes e profissionais liberais na sua região. Anúncios de qualidade, informações confiáveis e contato direto.</p>
     </div>
+   
+
+{% if banners %}
+<div class="row mb-5 fade-in-up">
+    <div class="col-12">
+        <h5 class="text-muted small mb-2 text-uppercase fw-bold"><i class="fas fa-star text-warning me-1"></i> Parceiros em Destaque</h5>
+        
+        <div class="logos-ticker-container shadow rounded bg-white overflow-hidden py-3">
+            <div class="logos-ticker-track">
+                
+                {% for anuncio in banners %}
+                    {% if anuncio.slug %}
+                    <a href="{% url 'listing_detail' slug=anuncio.slug %}" class="ticker-item">
+                    {% else %}
+                    <div class="ticker-item">
+                    {% endif %}
+                        <img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">
+                    {% if anuncio.slug %}
+                    </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% for anuncio in banners %}
+                    {% if anuncio.slug %}
+                    <a href="{% url 'listing_detail' slug=anuncio.slug %}" class="ticker-item" aria-hidden="true">
+                    {% else %}
+                    <div class="ticker-item" aria-hidden="true">
+                    {% endif %}
+                        <img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">
+                    {% if anuncio.slug %}
+                    </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
     <!-- Search Bar -->
     <div class="search-container fade-in-up">
@@ -108,8 +151,11 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 cursor-pointer" onclick="window.location.href='{% url 'listing_detail' slug=listing.slug %}'">
                     {% if listing.logo %}
-                    <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 200px; object-fit: cover;">
+                    <div class="p-2" style="background: rgba(0, 0, 0, 0.2); height: 180px; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 100%; width: 100%; object-fit: contain;">
+                    </div>
                     {% else %}
+...
                     <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 200px;">
                         <i class="fas fa-image text-muted" style="font-size: 3rem;"></i>
                     </div>
@@ -200,8 +246,11 @@
             <div class="col-md-6 col-lg-3">
                 <div class="card h-100 cursor-pointer" onclick="window.location.href='{% url 'listing_detail' slug=listing.slug %}'">
                     {% if listing.logo %}
-                    <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 150px; object-fit: cover;">
+                    <div class="p-2" style="background: rgba(0, 0, 0, 0.2); height: 150px; display: flex; align-items: center; justify-content: center;">
+                        <img src="{{ listing.logo.url }}" class="card-img-top" alt="{{ listing.business_name }}" style="height: 100%; width: 100%; object-fit: contain;">
+                    </div>
                     {% else %}
+...
                     <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center" style="height: 150px;">
                         <i class="fas fa-image text-muted" style="font-size: 2rem;"></i>
                     </div>
@@ -293,6 +342,72 @@
 <style>
     .cursor-pointer {
         cursor: pointer;
+    }
+   
+    /* Define alturas elegantes para o banner dependendo da tela do usuário */
+    .banner-img-container {
+        height: 180px; /* Celular */
+    }
+    @media (min-width: 768px) {
+        .banner-img-container {
+            height: 350px; /* Computadores/Tablets */
+        }
+    }
+    .style-caption {
+        bottom: 20px;
+        width: fit-content;
+    }
+
+    /* Container que esconde o que passa das bordas da tela */
+    .logos-ticker-container {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        background-color: #d3d8d736 !important;
+    }
+
+    /* A esteira que segura os itens e roda a animação */
+    .logos-ticker-track {
+        display: flex;
+        width: max-content;
+        animation: correrDaDireitaParaEsquerda 5s linear infinite;
+    }
+
+    /* Pausa a esteira quando o usuário passa o mouse por cima para clicar */
+    .logos-ticker-track:hover {
+        animation-play-state: paused;
+    }
+
+    /* Cada logo individual dentro da esteira */
+    .ticker-item {
+        display: flex;
+        align-items: left;
+        justify-content: center;
+        padding: 0 40px; /* Distância entre os logos */
+        height: 80px;    /* Altura controlada dos logos no topo */
+        transition: transform 0.2s ease;
+    }
+
+    .ticker-item img {
+        height: 100%;
+        width: auto;
+        object-fit: contain;
+        filter: grayscale(20%); /* Deixa o visual harmônico */
+    }
+
+    .ticker-item:hover img {
+        filter: grayscale(0%);
+        transform: scale(1.05); /* Leve zoom ao passar o mouse */
+    }
+
+    /* A mágica do CSS que faz correr infinitamente */
+    @keyframes correrDaDireitaParaEsquerda {
+        0% {
+            transform: translateX(0);
+        }
+        100% {
+            transform: translateX(-50%);
+        }
     }
 </style>
 {% endblock %}

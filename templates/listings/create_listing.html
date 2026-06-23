@@ -111,11 +111,21 @@
                                     <i class="fas fa-image"></i> {{ form.logo.label }}
                                 </label>
                                 {{ form.logo }}
-                                <div class="form-text text-muted">Máximo 2MB. Formatos: JPEG, PNG, GIF, WebP</div>
+                                <div class="form-text mt-2 p-3 rounded" style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.15);">
+                                    <span class="text-info fw-bold d-block mb-1">
+                                        <i class="fas fa-info-circle"></i> Como escolher a melhor imagem:
+                                    </span>
+                                    <ul class="text-muted small mb-0 ps-2">
+                                        <li>Prefira imagens **deitadas (horizontais)** na proporção **16:9** (Ex: 800x450px).</li>
+                                        <li>Se enviar um **Logotipo**, deixe uma **margem de segurança** (espaço em branco) ao redor da marca para evitar que as bordas sejam cortadas nos cards.</li>
+                                        <li>Formatos aceitos: JPG, PNG ou WEBP até **2MB**.</li>
+                                    </ul>
+                                </div>
                                 {% if form.logo.errors %}
                                     <div class="text-danger small">{{ form.logo.errors }}</div>
                                 {% endif %}
                             </div>
+                            
 
                             <!-- Instagram -->
                             <div class="col-md-6">

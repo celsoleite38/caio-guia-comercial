@@ -8,9 +8,11 @@ from django.core.paginator import Paginator
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-from .models import Listing, ListingImage, Category, AdminLog, Cidade
+from django.contrib.auth import login, logout
+from .models import Banner, Listing, ListingImage, Category, AdminLog, Cidade
 from .forms import ListingForm
+
+
 
 
 GALERIA_MAX_FOTOS = 5
@@ -77,11 +79,31 @@ def home(request):
     agora = timezone.now()
     eh_destaque = Q(plan='paid') & (Q(data_expiracao__isnull=True) | Q(data_expiracao__gt=agora))
 
-    # 5. Separa os anúncios em Destaques e Gratuitos baseados no critério acima
-    paid_listings = listings.filter(eh_destaque)
-    free_listings = listings.exclude(eh_destaque)
+    banners_topo = Listing.objects.filter(
+        status='approved',
+        destaque_topo=True,
+        logo__isnull=False
+    ).exclude(
+        slug=""
+    ).filter(
+        Q(data_expiracao_topo__isnull=True) | Q(data_expiracao_topo__gt=agora)
+    )
 
-    # 6. Aplica a ordenação por avaliação em AMBOS os tipos de anúncios se solicitado
+    
+    paid_listings = Listing.objects.filter(
+        status='approved',
+        plan='paid'
+    ).exclude(slug="").filter(
+        Q(data_expiracao__isnull=True) | Q(data_expiracao__gt=agora)
+    )
+
+    
+    free_listings = Listing.objects.filter(
+        status='approved',
+        plan='free'
+    ).exclude(slug="")
+
+    
     if ordenacao == 'melhores':
         paid_listings = paid_listings.order_by('-media_nota', '-created_at')
         free_listings = free_listings.order_by('-media_nota', '-created_at')
@@ -105,6 +127,9 @@ def home(request):
     # 8. Querysets auxiliares para montar as caixas de seleção do HTML
     categories = Category.objects.all()
     cidades = Cidade.objects.filter(ativa=True)
+
+    # Busca apenas os banners ativos para o topo
+    banners = Banner.objects.filter(ativo=True)
     
     context = {
         'paid_listings': paid_listings,
@@ -116,10 +141,14 @@ def home(request):
         'cidade_selecionada': int(cidade_id) if cidade_id and cidade_id.isdigit() else None,
         'ordenacao': ordenacao,  # Enviado para manter o <select> marcado no HTML
         'total_listings': listings.count(),
+        'banners': banners_topo,
     }
     
     return render(request, 'listings/home.html', context)
 
+def logout_view(request):
+    logout(request)
+    return redirect('home')
 
 def listing_detail(request, slug):
     listing = get_object_or_404(Listing, slug=slug, status='approved')
@@ -407,3 +436,4 @@ def editar_anuncio(request, listing_id):
         'galeria_max_fotos': GALERIA_MAX_FOTOS,
     }
     return render(request, 'listings/create_listing.html', context)
+

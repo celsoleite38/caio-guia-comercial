@@ -78,6 +78,9 @@ class Listing(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    destaque_topo = models.BooleanField(default=False, verbose_name="Exibir no Carrossel do Topo?", help_text="Se marcado, o logotipo aparecerá no banner rotativo do topo (apenas enquanto o plano pago estiver válido).")
+    data_expiracao_topo = models.DateTimeField(blank=True, null=True, verbose_name="Vencimento do Banner do Topo", help_text="Deixe em branco para tempo ilimitado ou defina a data limite para o banner sumir do topo.")
+
     # --- Benefícios do anúncio pago ---
     instagram = models.URLField(
         'Instagram', blank=True,
@@ -153,6 +156,7 @@ class ListingImage(models.Model):
     é verdadeiro, mas o upload fica disponível pra todo mundo desde já, pra
     não precisar pedir pro anunciante reenviar foto quando ele virar pago.
     """
+       
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='galeria')
     imagem = models.ImageField(upload_to='anuncios/galeria/')
     ordem = models.PositiveSmallIntegerField(default=0)
@@ -232,3 +236,21 @@ class Rating(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.listing.business_name} ({self.stars})'
+
+from django.db import models
+
+class Banner(models.Model):
+    titulo = models.CharField(max_length=100, verbose_name="Título do Banner", blank=True)
+    imagem = models.ImageField(upload_to="banners/", verbose_name="Imagem do Banner")
+    link_destino = models.URLField(verbose_name="Link de Destino (Opcional)", blank=True, null=True, help_text="Link para onde o usuário será enviado ao clicar")
+    ativo = models.BooleanField(default=True, verbose_name="Ativo?", help_text="Marque para exibir no topo do site")
+    ordem = models.IntegerField(default=0, verbose_name="Ordem de Exibição", help_text="Números menores aparecem primeiro")
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Banner Rotativo"
+        verbose_name_plural = "Banners Rotativos"
+        ordering = ['ordem', '-criado_em']
+
+    def __str__(self):
+        return self.titulo or f"Banner #{self.id}"

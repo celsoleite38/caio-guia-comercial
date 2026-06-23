@@ -24,15 +24,21 @@ class ListingImageInline(admin.TabularInline):
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ['business_name', 'owner', 'status', 'plan', 'data_expiracao', 'created_at', 'views']
-    list_filter = ['status', 'plan', 'category']
+    # 1. Tabela de Listagem: Define as colunas que aparecem na tabela do Admin
+    list_display = ['business_name', 'owner', 'status', 'plan', 'destaque_topo', 'data_expiracao', 'created_at', 'views']
+    
+    # 2. Edição Rápida: Permite alterar o status e ativar/desativar o carrossel direto na tabela
+    list_editable = ['status', 'destaque_topo'] 
+    
+    # 3. Filtros Laterais e Busca
+    list_filter = ['status', 'plan', 'category', 'destaque_topo', 'cidade']
     search_fields = ['business_name', 'owner__username']
-    list_editable = ['status']  # plan fica de fora daqui de propósito: usar "Marcar como pago" no painel
-                                 # (lá dá pra definir o prazo do destaque). Editar `plan` aqui na lista não
-                                 # quebra nada, só fica sem prazo de expiração (destaque "vitalício").
+    
+    # 4. Campos de Apenas Leitura
     readonly_fields = ['slug', 'views', 'created_at']
     inlines = [ListingImageInline]
 
+    # 5. Organização dos blocos dentro da página de edição do Anúncio
     fieldsets = (
         ('Informações do Negócio', {
             'fields': ('business_name', 'slug', 'description', 'category', 'logo')
@@ -40,12 +46,16 @@ class ListingAdmin(admin.ModelAdmin):
         ('Contato', {
             'fields': ('phone', 'whatsapp', 'email', 'address', 'cidade')
         }),
-        ('Benefícios do plano pago', {
+        ('Benefícios do Plano Pago', {
             'fields': ('instagram', 'website'),
             'description': 'Só aparecem publicados no site se o anúncio estiver com plano Pago e dentro do prazo de destaque.',
         }),
-        ('Configurações', {
-            'fields': ('owner', 'status', 'plan', 'data_expiracao', 'views')
+        ('Configurações do Sistema', {
+            'fields': ('owner', 'views', 'created_at')
+        }),
+        ('Status e Controle de Planos', {
+            'fields': ('status', 'plan', 'data_expiracao', ('destaque_topo', 'data_expiracao_topo')),
+            'description': 'Controle de aprovação e veiculação de anúncios premium no topo.',
         }),
     )
 
@@ -76,3 +86,13 @@ class RatingAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+from django.contrib import admin
+from .models import Banner
+
+@admin.register(Banner)
+class BannerAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'ativo', 'ordem', 'criado_em')
+    list_editable = ('ativo', 'ordem')  # Permite ativar/desativar direto na listagem
+    list_filter = ('ativo',)
+    search_fields = ('titulo',)
