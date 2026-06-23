@@ -1,6 +1,7 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path
 from . import views
+from . import rating_views
 
 urlpatterns = [
     # Público
@@ -22,4 +23,9 @@ urlpatterns = [
     path('painel/anuncios/<int:listing_id>/gratis/', views.mark_free, name='mark_free'),
     path('painel/categorias/', views.admin_categories, name='admin_categories'),
     path('painel/categorias/<int:category_id>/deletar/', views.delete_category, name='delete_category'),
+    
+    # Rotas de Avaliacoes
+    path('anuncio/<int:listing_id>/avaliar/', rating_views.create_rating, name='create_rating'),
+    path('avaliacao/<int:rating_id>/deletar/', rating_views.delete_rating, name='delete_rating'),
+    path('api/anuncio/<int:listing_id>/avaliacoes/', rating_views.listing_ratings, name='listing_ratings_api'),
 ]

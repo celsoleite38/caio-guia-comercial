@@ -1,0 +1,146 @@
+<!-- Seção de Avaliações - Incluir em listing_detail.html -->
+
+<div class="card fade-in-up mb-4" style="border: 1px solid rgba(0, 212, 255, 0.2);">
+    <div class="card-body p-4">
+        <!-- Header da Seção de Avaliações -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="card-title text-primary mb-0">
+                <i class="fas fa-star"></i> Avaliações
+            </h5>
+            {% if user.is_authenticated %}
+            <a href="{% url 'create_rating' listing.id %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus"></i> Avaliar
+            </a>
+            {% else %}
+            <a href="{% url 'login' %}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-sign-in-alt"></i> Faça login para avaliar
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Resumo de Avaliações -->
+        {% if listing.total_ratings > 0 %}
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="p-3 rounded" style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.2);">
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <span style="font-size: 2.5rem; color: #ffc107; font-weight: bold;">
+                                {{ listing.average_rating }}
+                            </span>
+                            <span class="text-muted">/5.0</span>
+                        </div>
+                        <div class="mb-2">
+                            {% for i in "12345" %}
+                                {% if i|add:0 <= listing.average_rating %}
+                                <i class="fas fa-star" style="color: #ffc107;"></i>
+                                {% elif i|add:0 <= listing.average_rating|add:0.5 %}
+                                <i class="fas fa-star-half-alt" style="color: #ffc107;"></i>
+                                {% else %}
+                                <i class="far fa-star" style="color: #ffc107;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <p class="text-muted small mb-0">
+                            {{ listing.total_ratings }} avaliação{{ listing.total_ratings|pluralize }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Distribuição de Estrelas -->
+            <div class="col-md-8">
+                {% for stars, count in ratings_by_stars %}
+                    <div class="mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <small class="text-muted" style="width: 30px;">{{ stars }} ⭐</small>
+                            <div class="progress flex-grow-1" style="height: 8px; background: rgba(0, 212, 255, 0.1);">
+                                <div class="progress-bar bg-warning" role="progressbar" 
+                                    style="width: {% if listing.total_ratings %}{{ count|slice:":1" }}{% endif %}%">
+                                    </div>
+                            </div>
+                            <small class="text-muted" style="width: 20px; text-align: right;">{{ count }}</small>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Lista de Avaliações -->
+        <h6 class="text-primary mb-3"><i class="fas fa-comments"></i> Comentários</h6>
+        <div class="ratings-list" style="max-height: 500px; overflow-y: auto;">
+            {% for rating in listing.ratings.all %}
+            <div class="p-3 mb-3 rounded" style="background: rgba(26, 31, 58, 0.5); border: 1px solid rgba(0, 212, 255, 0.1);">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <strong class="text-light">{{ rating.user.username }}</strong>
+                        <div class="mt-1">
+                            {% for i in "12345" %}
+                                {% if i|add:0 <= rating.stars %}
+                                <i class="fas fa-star" style="color: #ffc107; font-size: 0.85rem;"></i>
+                                {% else %}
+                                <i class="far fa-star" style="color: #ffc107; font-size: 0.85rem;"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="text-muted small ms-2">({{ rating.stars }} estrela{{ rating.stars|pluralize }})</span>
+                        </div>
+                    </div>
+                    <small class="text-muted">{{ rating.created_at|date:'d/m/Y' }}</small>
+                </div>
+
+                {% if rating.comment %}
+                <p class="text-muted mb-2">{{ rating.comment }}</p>
+                {% endif %}
+
+                {% if user.is_authenticated and user == rating.user or user.is_staff %}
+                <div class="d-flex gap-2">
+                    <a href="{% url 'create_rating' listing.id %}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <form method="post" action="{% url 'delete_rating' rating.id %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Tem certeza que deseja deletar esta avaliação?')">
+                            <i class="fas fa-trash"></i> Deletar
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted text-center py-4">
+                <i class="fas fa-inbox"></i> Nenhuma avaliação ainda. Seja o primeiro a avaliar!
+            </p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted mb-3">
+                <i class="fas fa-star" style="font-size: 2rem; opacity: 0.5;"></i>
+            </p>
+            <p class="text-muted">Nenhuma avaliação ainda. Seja o primeiro a avaliar este anúncio!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .ratings-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .ratings-list::-webkit-scrollbar-track {
+        background: rgba(0, 212, 255, 0.1);
+        border-radius: 3px;
+    }
+
+    .ratings-list::-webkit-scrollbar-thumb {
+        background: rgba(0, 212, 255, 0.3);
+        border-radius: 3px;
+    }
+
+    .ratings-list::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 212, 255, 0.5);
+    }
+</style>

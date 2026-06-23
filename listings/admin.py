@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import AdminLog, Category, Cidade, Listing, ListingImage
+from .models import AdminLog, Category, Cidade, Listing, ListingImage, Rating
 
 
 @admin.register(Category)
@@ -56,3 +56,23 @@ class AdminLogAdmin(admin.ModelAdmin):
     list_filter = ['action']
     search_fields = ['listing__business_name']
     readonly_fields = ['listing', 'admin', 'action', 'reason', 'created_at']
+
+
+@admin.register(Rating)
+class RatingAdmin(admin.ModelAdmin):
+    list_display = ['listing', 'user', 'stars', 'created_at']
+    list_filter = ['stars', 'created_at']
+    search_fields = ['listing__business_name', 'user__username']
+    readonly_fields = ['listing', 'user', 'created_at', 'updated_at']
+    fieldsets = (
+        ('Avaliacao', {
+            'fields': ('listing', 'user', 'stars')
+        }),
+        ('Comentario', {
+            'fields': ('comment',)
+        }),
+        ('Datas', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )

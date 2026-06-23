@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.db.models import Q, Sum, Count, Avg
+from django.db.models import Q, Sum
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -11,7 +11,6 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from .models import Listing, ListingImage, Category, AdminLog, Cidade
 from .forms import ListingForm
-
 
 GALERIA_MAX_FOTOS = 5
 GALERIA_MAX_TAMANHO_MB = 2
@@ -47,19 +46,13 @@ def is_admin(user):
 
 
 def home(request):
-    """Página inicial com listagem de anúncios, filtros, médias de notas e ordenação"""
-    # 1. Captura os parâmetros da URL
+    """Página inicial com listagem de anúncios"""
     search_query = request.GET.get('q', '')
     category_id = request.GET.get('category', '')
     cidade_id = request.GET.get('cidade', '')
-    ordenacao = request.GET.get('ordenar', '')  # Novo filtro de ordenação
     
-    # 2. Base QuerySet: Traz apenas os aprovados e já calcula a média de notas usando o relacionamento real ('ratings__stars')
-    listings = Listing.objects.filter(status='approved').annotate(
-        media_nota=Avg('ratings__stars')
-    )
+    listings = Listing.objects.filter(status='approved')
     
-    # 3. Aplica os filtros de busca (se existirem) mantendo a persistência dos dados
     if search_query:
         listings = listings.filter(
             Q(business_name__icontains=search_query) |
@@ -71,38 +64,21 @@ def home(request):
         listings = listings.filter(category_id=category_id)
     
     if cidade_id:
-        listings = listings.filter(cidade_id=cidade_id)
+        listings = listings.filter(cidade_id=cidade_id)  # Agora funciona
 
-    # 4. Define o critério de Destaque Pago (Plano pago E não expirado)
+    # Mesma regra do model `esta_destacado`: pago E (sem prazo OU prazo no futuro).
+    # Expresso aqui como Q pra poder filtrar no banco — assim um plano pago
+    # vencido já some do destaque mesmo se o cron de expiração ainda não rodou.
     agora = timezone.now()
     eh_destaque = Q(plan='paid') & (Q(data_expiracao__isnull=True) | Q(data_expiracao__gt=agora))
 
-    # 5. Separa os anúncios em Destaques e Gratuitos baseados no critério acima
-    paid_listings = listings.filter(eh_destaque)
-    free_listings = listings.exclude(eh_destaque)
-
-    # 6. Aplica a ordenação por avaliação em AMBOS os tipos de anúncios se solicitado
-    if ordenacao == 'melhores':
-        paid_listings = paid_listings.order_by('-media_nota', '-created_at')
-        free_listings = free_listings.order_by('-media_nota', '-created_at')
-    elif ordenacao == 'piores':
-        # Coloca quem tem nota mais baixa primeiro, e joga quem não tem avaliação para o final
-        paid_listings = paid_listings.order_by('media_nota', '-created_at')
-        free_listings = free_listings.order_by('media_nota', '-created_at')
-    else:
-        # Ordenação padrão por data de criação se nenhum filtro de nota for selecionado
-        paid_listings = paid_listings.order_by('-created_at')
-        free_listings = free_listings.order_by('-created_at')
-
-    # Limita os destaques exibidos no topo (ex: no máximo 6)
-    paid_listings = paid_listings[:6]
+    paid_listings = listings.filter(eh_destaque).order_by('-created_at')[:6]
+    free_listings = listings.exclude(eh_destaque).order_by('-created_at')
     
-    # 7. Paginação dos anúncios gratuitos
     paginator = Paginator(free_listings, 12)
     page_number = request.GET.get('page', 1)
     free_listings_page = paginator.get_page(page_number)
     
-    # 8. Querysets auxiliares para montar as caixas de seleção do HTML
     categories = Category.objects.all()
     cidades = Cidade.objects.filter(ativa=True)
     
@@ -112,9 +88,8 @@ def home(request):
         'categories': categories,
         'cidades': cidades,
         'search_query': search_query,
-        'selected_category': int(category_id) if category_id and category_id.isdigit() else None,
-        'cidade_selecionada': int(cidade_id) if cidade_id and cidade_id.isdigit() else None,
-        'ordenacao': ordenacao,  # Enviado para manter o <select> marcado no HTML
+        'selected_category': int(category_id) if category_id else None,
+        'cidade_selecionada': int(cidade_id) if cidade_id else None,
         'total_listings': listings.count(),
     }
     
@@ -130,14 +105,6 @@ def listing_detail(request, slug):
         status='approved',
         category=listing.category
     ).exclude(id=listing.id)[:4]
-
-    stars_query = listing.ratings.values('stars').annotate(total=Count('id'))
-    stars_distribution = {i: 0 for i in range(1, 6)}  # Inicializa 1 a 5 com zero
-    for item in stars_query:
-        stars_distribution[item['stars']] = item['total']
-        
-    # Ordena de forma decrescente para o layout (5 estrelas até 1 estrela)
-    ratings_by_stars = sorted(stars_distribution.items(), key=lambda x: x[0], reverse=True)
     
     context = {
         'listing': listing,

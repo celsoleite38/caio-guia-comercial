@@ -42,17 +42,31 @@
                         <div>
                             <h1 class="card-title mb-2">{{ listing.business_name }}</h1>
                             {% if listing.category %}
-                            <p class="text-muted">
+                            <p class="text-muted mb-0">
                                 <i class="fas fa-tag"></i> {{ listing.category.icon }} {{ listing.category.name }}
                             </p>
                             {% endif %}
                         </div>
-                        {% if listing.esta_destacado %}
-                        <span class="badge badge-warning" style="font-size: 0.9rem;">
-                            <i class="fas fa-star"></i> Destaque
-                        </span>
-                        {% endif %}
-                    </div>
+                        
+                        <div class="d-flex flex-column align-items-end gap-2 text-end">
+                            {% if listing.esta_destacado %}
+                            <span class="badge badge-warning" style="font-size: 0.9rem;">
+                                <i class="fas fa-star"></i> Destaque
+                            </span>
+                            {% endif %}
+
+                            {% if user.is_authenticated %}
+                            <a href="{% url 'create_rating' listing.id %}" class="btn btn-sm btn-primary">
+                                <i class="fas fa-plus me-1" ></i><span style="font-size: 0.8rem">AVALIAR</span>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-sm btn-outline-primary text-nowrap">
+                                <i class="fas fa-sign-in-alt me-1"></i> Faça login para avaliar
+                            </a>
+                            {% endif %}
+                        </div>
+</div>
+                    
 
                     <div class="divider"></div>
 
@@ -178,9 +192,15 @@
             </div>
         </div>
 
+        <!-- Seção de Avaliações -->
+        <div class="col-lg-8">
+            {% include 'listings/ratings_section.html' %}
+        </div>
+
        
 
             <!-- Anúncios Relacionados -->
+            <div class="col-lg-8">
             {% if related_listings %}
             <div class="card fade-in-up">
                 <div class="card-body">
@@ -198,6 +218,7 @@
                 </div>
             </div>
             {% endif %}
+            </div>
         </div>
     </div>
 </div>

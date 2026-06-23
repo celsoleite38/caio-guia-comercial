@@ -75,6 +75,20 @@
                     {% endfor %}
                 </select>
             </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Ordenar por:</label>
+                <select class="form-select" onchange="if(this.value) window.location.href=this.value">
+                    <option value="?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if cidade_selecionada %}cidade={{ cidade_selecionada }}&{% endif %}ordenar=" {% if not ordenacao %}selected{% endif %}>Padrão</option>
+                    
+                    <option value="?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if cidade_selecionada %}cidade={{ cidade_selecionada }}&{% endif %}ordenar=melhores" {% if ordenacao == 'melhores' %}selected{% endif %}>
+                        ⭐ Melhores Avaliados
+                    </option>
+                    
+                    <option value="?{% if search_query %}q={{ search_query }}&{% endif %}{% if selected_category %}category={{ selected_category }}&{% endif %}{% if cidade_selecionada %}cidade={{ cidade_selecionada }}&{% endif %}ordenar=piores" {% if ordenacao == 'piores' %}selected{% endif %}>
+                        ⭐ Menos Avaliados
+                    </option>
+                </select>
+            </div>
         </div>
     </div>
     {% endif %}
@@ -103,8 +117,17 @@
 
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
-                            <h5 class="card-title">{{ listing.business_name }}</h5>
-                            <span class="badge badge-warning">
+                            
+                                <h5 class="card-title mb-1">{{ listing.business_name }}</h5>
+                                <!-- Estrelas do Destaque -->
+                                {% if listing.media_nota %}
+                                <div class="text-warning small" title="Média: {{ listing.media_nota|floatformat:1 }} de 5">
+                                    <i class="fas fa-star"></i>
+                                    <span class="fw-bold text-muted small">{{ listing.media_nota|floatformat:1 }}</span>
+                                </div>
+                                {% endif %}
+                            
+                            <span class="badge badge-warning text-nowrap">
                                 <i class="fas fa-star"></i> Destaque
                             </span>
                         </div>
@@ -185,7 +208,19 @@
                     {% endif %}
 
                     <div class="card-body">
-                        <h6 class="card-title">{{ listing.business_name }}</h6>
+                        <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                            <h6 class="card-title mb-0">{{ listing.business_name }}</h6>
+                            {% if listing.media_nota %}
+                            <div class="text-warning small text-nowrap" title="Média: {{ listing.media_nota|floatformat:1 }} de 5">
+                                <i class="fas fa-star"></i>
+                                <span class="fw-bold text-muted small">{{ listing.media_nota|floatformat:1 }}</span>
+                            </div>
+                            {% else %}
+                            <div class="text-muted small text-nowrap" style="font-size: 0.75rem;">
+                                Sem avaliações
+                            </div>
+                            {% endif %}
+                        </div>
                         <p class="card-text small text-muted">{{ listing.description|truncatewords:15 }}</p>
 
                         {% if listing.cidade %}
