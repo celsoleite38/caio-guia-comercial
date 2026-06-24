@@ -89,18 +89,21 @@ def home(request):
         Q(data_expiracao_topo__isnull=True) | Q(data_expiracao_topo__gt=agora)
     )
 
-    
     paid_listings = Listing.objects.filter(
         status='approved',
         plan='paid'
+    ).annotate(
+        media_nota=Avg('ratings__stars')
     ).exclude(slug="").filter(
         Q(data_expiracao__isnull=True) | Q(data_expiracao__gt=agora)
     )
 
-    
+    # CORREÇÃO AQUI: Adicionado .annotate() para os anúncios gratuitos trazerem a nota do banco
     free_listings = Listing.objects.filter(
         status='approved',
         plan='free'
+    ).annotate(
+        media_nota=Avg('ratings__stars')
     ).exclude(slug="")
 
     
