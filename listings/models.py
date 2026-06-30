@@ -100,7 +100,16 @@ class Listing(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.business_name)
+            slug_base = slugify(self.business_name)
+            slug_candidato = slug_base
+            contador = 2
+            # Garante slug único de verdade: "padaria-pao-cia", "padaria-pao-cia-2", etc.
+            # Sem isso, dois anúncios com nome igual (ou que viram o mesmo slug
+            # depois do slugify) derrubam o cadastro com IntegrityError.
+            while Listing.objects.filter(slug=slug_candidato).exclude(pk=self.pk).exists():
+                slug_candidato = f'{slug_base}-{contador}'
+                contador += 1
+            self.slug = slug_candidato
         super().save(*args, **kwargs)
 
     @property

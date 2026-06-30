@@ -82,9 +82,10 @@ def home(request):
     banners_topo = Listing.objects.filter(
         status='approved',
         destaque_topo=True,
-        logo__isnull=False
     ).exclude(
         slug=""
+    ).exclude(
+        logo=""
     ).filter(
         Q(data_expiracao_topo__isnull=True) | Q(data_expiracao_topo__gt=agora)
     )

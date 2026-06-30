@@ -28,7 +28,7 @@
                     {% else %}
                     <div class="ticker-item">
                     {% endif %}
-                        <img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">
+                        {% if anuncio.logo %}<img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">{% endif %}
                     {% if anuncio.slug %}
                     </a>
                     {% else %}
@@ -42,7 +42,7 @@
                     {% else %}
                     <div class="ticker-item" aria-hidden="true">
                     {% endif %}
-                        <img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">
+                        {% if anuncio.logo %}<img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">{% endif %}
                     {% if anuncio.slug %}
                     </a>
                     {% else %}
