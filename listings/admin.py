@@ -1,44 +1,35 @@
 from django.contrib import admin
-from .models import AdminLog, Category, Cidade, Listing, ListingImage, Rating
+from import_export.admin import ImportExportModelAdmin
+from.models import AdminLog, Category, Cidade, Listing, ListingImage, Rating, Banner
 
 
 @admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
+class CategoryAdmin(ImportExportModelAdmin):
     list_display = ['name', 'icon', 'created_at']
     search_fields = ['name']
     prepopulated_fields = {'slug': ('name',)}
 
 @admin.register(Cidade)
-class CidadeAdmin(admin.ModelAdmin):
+class CidadeAdmin(ImportExportModelAdmin):
     list_display = ['nome', 'estado', 'ativa', 'created_at']
     list_filter = ['estado', 'ativa']
     search_fields = ['nome']
     prepopulated_fields = {'slug': ('nome', 'estado')}
-
 
 class ListingImageInline(admin.TabularInline):
     model = ListingImage
     extra = 1
     fields = ['imagem', 'ordem']
 
-
 @admin.register(Listing)
-class ListingAdmin(admin.ModelAdmin):
-    # 1. Tabela de Listagem: Define as colunas que aparecem na tabela do Admin
+class ListingAdmin(ImportExportModelAdmin):
     list_display = ['business_name', 'owner', 'status', 'plan', 'destaque_topo', 'data_expiracao', 'created_at', 'views']
-    
-    # 2. Edição Rápida: Permite alterar o status e ativar/desativar o carrossel direto na tabela
-    list_editable = ['status', 'destaque_topo'] 
-    
-    # 3. Filtros Laterais e Busca
+    list_editable = ['status', 'destaque_topo']
     list_filter = ['status', 'plan', 'category', 'destaque_topo', 'cidade']
     search_fields = ['business_name', 'owner__username']
-    
-    # 4. Campos de Apenas Leitura
     readonly_fields = ['slug', 'views', 'created_at']
     inlines = [ListingImageInline]
 
-    # 5. Organização dos blocos dentro da página de edição do Anúncio
     fieldsets = (
         ('Informações do Negócio', {
             'fields': ('business_name', 'slug', 'description', 'category', 'logo')
@@ -59,17 +50,21 @@ class ListingAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(ListingImage)
+class ListingImageAdmin(ImportExportModelAdmin):
+    list_display = ['listing', 'imagem', 'ordem']
+    list_filter = ['listing']
+    search_fields = ['listing__business_name']
 
 @admin.register(AdminLog)
-class AdminLogAdmin(admin.ModelAdmin):
+class AdminLogAdmin(ImportExportModelAdmin):
     list_display = ['listing', 'admin', 'action', 'reason', 'created_at']
     list_filter = ['action']
     search_fields = ['listing__business_name']
     readonly_fields = ['listing', 'admin', 'action', 'reason', 'created_at']
 
-
 @admin.register(Rating)
-class RatingAdmin(admin.ModelAdmin):
+class RatingAdmin(ImportExportModelAdmin):
     list_display = ['listing', 'user', 'stars', 'created_at']
     list_filter = ['stars', 'created_at']
     search_fields = ['listing__business_name', 'user__username']
@@ -87,12 +82,9 @@ class RatingAdmin(admin.ModelAdmin):
         }),
     )
 
-from django.contrib import admin
-from .models import Banner
-
 @admin.register(Banner)
-class BannerAdmin(admin.ModelAdmin):
+class BannerAdmin(ImportExportModelAdmin):
     list_display = ('titulo', 'ativo', 'ordem', 'criado_em')
-    list_editable = ('ativo', 'ordem')  # Permite ativar/desativar direto na listagem
+    list_editable = ('ativo', 'ordem')
     list_filter = ('ativo',)
     search_fields = ('titulo',)
