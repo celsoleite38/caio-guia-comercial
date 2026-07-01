@@ -7,7 +7,7 @@
    
     <div class="hero fade-in-up py-3 mb-4">
         <h1 class="fs-3 mb-1 d-flex align-items-center">
-            <img src="{% static 'img/3.png' %}" alt="Caio Guia" height="50" class="me-2">
+            <img src="{% static 'img/3sf.png' %}" alt="Caio Guia" height="50" class="me-2">
             Descubra Negócios Locais
         </h1>
         <p class="mb-0 text-muted small">Encontre comerciantes e profissionais liberais na sua região. Anúncios de qualidade, informações confiáveis e contato direto.</p>
@@ -389,10 +389,13 @@
     }
 
     .ticker-item img {
-        height: 100%;
-        width: auto;
-        object-fit: contain;
-        filter: grayscale(20%); /* Deixa o visual harmônico */
+        width: 80px;          /* Defina a largura do círculo */
+        height: 80px;         /* Defina a altura idêntica à largura */
+        object-fit: cover;    /* Garante que a imagem preencha o círculo sem distorcer */
+        border-radius: 50%;   /* Aqui acontece a mágica do círculo */
+        border: 2px solid #e9ecef; /* Uma bordinha opcional para dar acabamento */
+        background-color: #fff;    /* Fundo branco caso a imagem tenha transparência */
+        transition: transform 0.2s ease-in-out;
     }
 
     .ticker-item:hover img {
