@@ -9,9 +9,12 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
-from .models import Banner, Listing, ListingImage, Category, AdminLog, Cidade
-from .forms import ListingForm
-
+from .models import Banner, Listing, ListingImage, Category, AdminLog, Cidade, Anunciante
+from .forms import ListingForm, CadastroAnuncianteForm
+import secrets
+from django.contrib.auth.models import User
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 
@@ -441,3 +444,71 @@ def editar_anuncio(request, listing_id):
     }
     return render(request, 'listings/create_listing.html', context)
 
+
+def cadastrar_anunciante(request):
+    if request.method == 'POST':
+        form = CadastroAnuncianteForm(request.POST)
+        if form.is_valid():
+            # 1. Cria o User (Authentication) desativado por padrão
+            user = User.objects.create_user(
+                username=form.cleaned_data['email'].lower(), # E-mail como login
+                email=form.cleaned_data['email'].lower(),
+                password=form.cleaned_data['senha'],
+                first_name=form.cleaned_data['nome'],
+                is_active=False # Usuário não consegue logar até confirmar o e-mail
+            )
+            
+            # 2. Cria o perfil do Anunciante com os dados complementares
+            anunciante = form.save(commit=False)
+            anunciante.user = user
+            
+            # Gera um token único e seguro de 64 caracteres
+            token = secrets.token_urlsafe(32)
+            anunciante.token_ativacao = token
+            anunciante.save()
+
+            # 3. Monta e envia o e-mail com o link de ativação
+            # request.get_host() pega o domínio atual automaticamente (ex: caioindica.com.br ou localhost)
+            link_ativacao = f"http://{request.get_host()}/accounts/ativar/{token}/"
+            
+            assunto = 'Confirme seu cadastro - Caio Indica'
+            mensagem = f"Olá {user.first_name},\n\nObrigado por se cadastrar no Caio Indica!\n\nPara garantir a segurança da plataforma, precisamos que confirme seu e-mail clicando no link abaixo:\n\n{link_ativacao}\n\nSe você não realizou este cadastro, por favor ignore este e-mail."
+            
+            try:
+                send_mail(
+                    assunto,
+                    mensagem,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                    fail_silently=False,
+                )
+                # Redireciona para uma página informando que o e-mail foi enviado
+                return render(request, 'accounts/cadastro_pendente.html', {'email': user.email})
+            except Exception as e:
+                # Caso o servidor de e-mail falhe (ex: falta de credenciais no settings), remove o usuário criado para não travar o banco
+                user.delete()
+                messages.error(request, "Erro ao enviar e-mail de ativação. Tente novamente mais tarde.")
+    else:
+        form = CadastroAnuncianteForm()
+    
+    # Renderiza o seu arquivo correto dentro da pasta accounts
+    return render(request, 'accounts/signup.html', {'form': form})
+
+
+def ativar_conta_anunciante(request, token):
+    # Procura o anunciante com o token correspondente
+    anunciante = get_object_or_404(Anunciante, token_ativacao=token)
+    
+    # Ativa o usuário principal do Django Auth
+    user = anunciante.user
+    user.is_active = True
+    user.save()
+    
+    # Atualiza o perfil do Anunciante e invalida o token para não ser reutilizado
+    anunciante.email_confirmado = True
+    anunciante.token_ativacao = None
+    anunciante.save()
+    
+    # Redireciona para a tela de login com uma mensagem de sucesso
+    messages.success(request, "Sua conta foi ativada com sucesso! Agora você pode fazer login.")
+    return redirect('login') # Altere para o nome da sua rota de login, se for diferente

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow p-4">
+                <div class="mb-3">
+                    <span class="fs-1 text-warning">✉️</span>
+                </div>
+                <h2 class="text-success mb-3">Cadastro quase pronto!</h2>
+                <p class="lead">Enviamos um link de confirmação para o e-mail: <strong class="text-primary">{{ email }}</strong></p>
+                <p class="text-muted">Por favor, acesse sua caixa de entrada (ou a pasta de spam) e clique no link para ativar sua conta de anunciante e liberar seu acesso.</p>
+                <hr>
+                <a href="{% url 'login' %}" class="btn btn-outline-secondary mt-2">Ir para a página de Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

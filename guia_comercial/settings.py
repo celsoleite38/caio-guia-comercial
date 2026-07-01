@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-v-cx4e^rfp*t$fg$vafoqkjk&a&c57)1!7j6hx19!27kpsab1y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['caioindica.clubeorange.com.br', 'localhost', '127.0.0.1', '191.252.191.208' ]
 
 
 # Application definition
@@ -77,13 +77,23 @@ WSGI_APPLICATION = 'guia_comercial.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#        'NAME': 'caio_indica_db',
+#        'USER': 'caio_indica_user',
+#        'PASSWORD': 'DefinaUmaSenhaForteAqui1',
+#        'HOST': 'localhost',
+#        'PORT': '5432',
+#    }
+#}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -135,3 +145,15 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Configurações de Envio de E-mail (SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'                # Se usar Gmail (ou o Host do seu provedor)
+EMAIL_PORT = 587                             # Porta padrão para TLS
+EMAIL_USE_TLS = True                         # Garante criptografia na conexão
+EMAIL_HOST_USER = 'caioindica@clubeorange.com.br'     # O e-mail que vai disparar as mensagens
+EMAIL_HOST_PASSWORD = 'sua-senha-de-app'     # Senha ou "Senha de App" gerada no provedor
+DEFAULT_FROM_EMAIL = 'Caio Indica <caioindica@clubeorange.com.br>'
+
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

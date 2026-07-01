@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
-
+from django.core.exceptions import ValidationError
+import re
 
 class Category(models.Model):
     """Modelo para categorias de negócios"""
@@ -263,3 +264,52 @@ class Banner(models.Model):
 
     def __str__(self):
         return self.titulo or f"Banner #{self.id}"
+
+
+
+
+class Anunciante(models.Model):
+    TIPO_PESSOA_CHOICES = [
+        ('PF', 'Pessoa Física (CPF)'),
+        ('PJ', 'Pessoa Jurídica (CNPJ)'),
+    ]
+
+    # Vincula o Anunciante a um Usuário padrão do Django Auth
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='anunciante')
+    
+    # Contatos
+    telefone = models.CharField(max_length=20)
+    is_whatsapp = models.BooleanField(default=False, verbose_name="É WhatsApp?")
+    
+    # Documentação com validação estrutural
+    tipo_pessoa = models.CharField(max_length=2, choices=TIPO_PESSOA_CHOICES, default='PF')
+    documento = models.CharField(max_length=18, unique=True) # Guarda o valor limpo (apenas números)
+    
+    # Endereço
+    rua = models.CharField(max_length=255)
+    numero = models.CharField(max_length=20)
+    bairro = models.CharField(max_length=100)
+    
+    # Combobox que virá dinamicamente da tabela de Cidades já existente
+    cidade = models.ForeignKey('Cidade', on_delete=models.PROTECT, related_name='anunciantes')
+    
+    # Controle de Segurança e Ativação por Email
+    email_confirmado = models.BooleanField(default=False)
+    token_ativacao = models.CharField(max_length=64, blank=True, null=True)
+
+    def __str__(self):
+        return self.user.get_full_name() or self.user.username
+
+    # Validação customizada no backend para garantir a integridade dos dados salvos
+    def clean(self):
+        super().clean()
+        # Remove pontos, traços e barras antes de validar
+        doc_limpo = re.sub(r'[^0-9]', '', self.documento)
+        
+        if self.tipo_pessoa == 'PF' and len(doc_limpo) != 11:
+            raise ValidationError({'documento': 'O CPF deve conter exatamente 11 dígitos.'})
+        elif self.tipo_pessoa == 'PJ' and len(doc_limpo) != 14:
+            raise ValidationError({'documento': 'O CNPJ deve conter exatamente 14 dígitos.'})
+        
+        # Guarda o documento limpo no banco para padronizar
+        self.documento = doc_limpo

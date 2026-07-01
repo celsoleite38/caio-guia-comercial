@@ -7,7 +7,7 @@ urlpatterns = [
     # Público
     path('', views.home, name='home'),
     path('anuncio/<slug:slug>/', views.listing_detail, name='listing_detail'),
-    path('signup/', views.signup, name='signup'),
+    #path('signup/', views.signup, name='signup'),
     path('login/', auth_views.LoginView.as_view(template_name='accounts/login.html'), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('create/', views.create_listing, name='create_listing'),
