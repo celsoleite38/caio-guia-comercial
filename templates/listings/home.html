@@ -50,6 +50,34 @@
                     {% endif %}
                 {% endfor %}
 
+                {% for anuncio in banners %}
+                    {% if anuncio.slug %}
+                    <a href="{% url 'listing_detail' slug=anuncio.slug %}" class="ticker-item" aria-hidden="true">
+                    {% else %}
+                    <div class="ticker-item" aria-hidden="true">
+                    {% endif %}
+                        {% if anuncio.logo %}<img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">{% endif %}
+                    {% if anuncio.slug %}
+                    </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                {% for anuncio in banners %}
+                    {% if anuncio.slug %}
+                    <a href="{% url 'listing_detail' slug=anuncio.slug %}" class="ticker-item" aria-hidden="true">
+                    {% else %}
+                    <div class="ticker-item" aria-hidden="true">
+                    {% endif %}
+                        {% if anuncio.logo %}<img src="{{ anuncio.logo.url }}" alt="{{ anuncio.business_name }}" title="{{ anuncio.business_name }}">{% endif %}
+                    {% if anuncio.slug %}
+                    </a>
+                    {% else %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
             </div>
         </div>
     </div>
@@ -364,13 +392,17 @@
         display: flex;
         align-items: center;
         background-color: #d3d8d736 !important;
+        overflow: hidden; /* Garante que as logos sumam ao sair da borda útil */
     }
 
     /* A esteira que segura os itens e roda a animação */
     .logos-ticker-track {
         display: flex;
         width: max-content;
-        animation: correrDaDireitaParaEsquerda 5s linear infinite;
+        /* CORREÇÃO 1: Adicionado o início deslocado para preencher a tela desde o começo */
+        transform: translate3d(-50%, 0, 0); 
+        /* CORREÇÃO 2: Mudou de "correrDaDireitaParaEsquerda" para "ticker-para-direita" */
+        animation: ticker-para-direita 10s linear infinite; 
     }
 
     /* Pausa a esteira quando o usuário passa o mouse por cima para clicar */
@@ -381,7 +413,7 @@
     /* Cada logo individual dentro da esteira */
     .ticker-item {
         display: flex;
-        align-items: left;
+        align-items: center; /* CORREÇÃO 3: de "left" para "center" para alinhar o círculo no meio */
         justify-content: center;
         padding: 0 40px; /* Distância entre os logos */
         height: 80px;    /* Altura controlada dos logos no topo */
@@ -403,13 +435,15 @@
         transform: scale(1.05); /* Leve zoom ao passar o mouse */
     }
 
-    /* A mágica do CSS que faz correr infinitamente */
-    @keyframes correrDaDireitaParaEsquerda {
+    /* A mágica do CSS que faz correr infinitamente para a direita */
+    @keyframes ticker-para-direita {
         0% {
-            transform: translateX(0);
+            /* Começa na metade (com a área preenchida) */
+            transform: translate3d(-50%, 0, 0);
         }
         100% {
-            transform: translateX(-50%);
+            /* Move em direção ao zero (para a direita) de forma infinita */
+            transform: translate3d(0, 0, 0);
         }
     }
 </style>
