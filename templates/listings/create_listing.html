@@ -118,7 +118,7 @@
                                     <ul class="text-muted small mb-0 ps-2">
                                         <li>Prefira imagens **deitadas (horizontais)** na proporção **16:9** (Ex: 800x450px).</li>
                                         <li>Se enviar um **Logotipo**, deixe uma **margem de segurança** (espaço em branco) ao redor da marca para evitar que as bordas sejam cortadas nos cards.</li>
-                                        <li>Formatos aceitos: JPG, PNG ou WEBP até **2MB**.</li>
+                                        <li>Formatos aceitos: JPG, PNG ou WEBP até **3MB**.</li>
                                     </ul>
                                 </div>
                                 {% if form.logo.errors %}
@@ -156,9 +156,9 @@
                                 <label class="form-label">
                                     <i class="fas fa-images"></i> Fotos extras (galeria)
                                 </label>
-                                <input type="file" name="galeria" class="form-control" accept="image/*" multiple>
+                                <input type="file" name="galeria" id="id_galeria" class="form-control" accept="image/*" multiple>
                                 <div class="form-text text-muted">
-                                    Até {{ galeria_max_fotos|default:5 }} fotos, 2MB cada. A galeria só aparece publicada se o anúncio for Destaque (plano pago) —
+                                    Até {{ galeria_max_fotos|default:5 }} fotos, 5MB cada. A galeria só aparece publicada se o anúncio for Destaque (plano pago) —
                                     pode mandar as fotos desde já que elas ficam guardadas pra quando o plano for liberado.
                                 </div>
 
@@ -194,4 +194,57 @@
         </div>
     </div>
 </div>
+
+<!-- Garanta que a biblioteca do SweetAlert2 esteja incluída na página -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+document.getElementById('id_logo').addEventListener('change', function() {
+    // 5 MB em Bytes = 5 * 1024 * 1024 = 5242880
+    const limiteTamanho = 5242880; 
+    
+    if (this.files && this.files[0]) {
+        const arquivo = this.files[0];
+        
+        if (arquivo.size > limiteTamanho) {
+            // Dispara o popup bonito do SweetAlert
+            Swal.fire({
+                icon: 'warning',
+                title: 'Imagem muito pesada',
+                text: 'O tamanho máximo permitido para a logo é de 5 MB. Escolha um arquivo menor.',
+                confirmButtonColor: '#fd7e14' // Cor laranja do Clube Orange
+            });
+            
+            // Limpa o input para o usuário não conseguir enviar o arquivo gigante
+            this.value = ''; 
+        }
+    }
+});
+document.getElementById('id_galeria').addEventListener('change', function() {
+    // 5 MB em Bytes = 5 * 1024 * 1024 = 5242880
+    const limiteTamanho = 5242880; 
+    const arquivos = this.files;
+    
+    if (arquivos) {
+        // Passa por cada arquivo selecionado pelo usuário
+        for (let i = 0; i < arquivos.length; i++) {
+            if (arquivos[i].size > limiteTamanho) {
+                
+                // Dispara o SweetAlert informando o nome do arquivo problemático
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Foto muito pesada na galeria!',
+                    html: `A foto <strong>"${arquivos[i].name}"</strong> ultrapassa o limite de 5 MB.<br><br>Por favor, reduza o tamanho da imagem ou escolha arquivos mais leves.`,
+                    confirmButtonColor: '#fd7e14'
+                });
+                
+                // Limpa o input da galeria inteira para evitar o envio incorreto
+                this.value = ''; 
+                break; // Para o loop já no primeiro erro encontrado
+            }
+        }
+    }
+});
+</script>
+
 {% endblock %}
