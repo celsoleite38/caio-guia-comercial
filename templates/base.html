@@ -436,8 +436,17 @@
                             <i class="fas fa-bullhorn"></i> <span class="d-none d-lg-inline">Anunciar</span>
                         </a>
                     </li>
-                    
                     {% if user.is_authenticated %}
+                        <!-- INÍCIO DO BLOCO DO PAINEL DO CAIO -->
+                        {% if user.is_staff %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold" style="color: var(--warning) !important;" href="{% url 'admin_dashboard' %}">
+                                    <i class="fas fa-tachometer-alt text-warning"></i> <span class="d-none d-lg-inline text-warning">Painel do Caio</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    
+                    
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'meus_anuncios' %}">
                                 <i class="fas fa-list"></i> <span class="d-none d-lg-inline">Meus Anúncios</span>
@@ -460,6 +469,7 @@
                             </a>
                         </li>
                     {% endif %}
+                    
                 </ul>
             </div>
         </div>

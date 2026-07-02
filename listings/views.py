@@ -15,6 +15,8 @@ import secrets
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
+from django.http import Http404
+
 
 
 
@@ -157,27 +159,39 @@ def logout_view(request):
     logout(request)
     return redirect('home')
 
+
+
 def listing_detail(request, slug):
-    listing = get_object_or_404(Listing, slug=slug, status='approved')
-    listing.views += 1
-    listing.save(update_fields=['views'])
+    # 1. Busca o anúncio apenas pelo slug para não dar 404 imediato
+    listing = get_object_or_404(Listing, slug=slug)
     
+    # 2. Se NÃO estiver aprovado, valida quem está tentando acessar
+    if listing.status != 'approved':
+        if not (request.user.is_authenticated and (request.user.is_staff or request.user == listing.user)):
+            raise Http404("No Listing matches the given query.")
+    else:
+        # 3. Só contabiliza a visualização se o anúncio já estiver aprovado e público
+        listing.views += 1
+        listing.save(update_fields=['views'])
+    
+    # 4. Busca anúncios relacionados (apenas aprovados)
     related_listings = Listing.objects.filter(
         status='approved',
         category=listing.category
     ).exclude(id=listing.id)[:4]
 
+    # 5. Distribuição de estrelas (continua igual)
     stars_query = listing.ratings.values('stars').annotate(total=Count('id'))
-    stars_distribution = {i: 0 for i in range(1, 6)}  # Inicializa 1 a 5 com zero
+    stars_distribution = {i: 0 for i in range(1, 6)}
     for item in stars_query:
         stars_distribution[item['stars']] = item['total']
         
-    # Ordena de forma decrescente para o layout (5 estrelas até 1 estrela)
     ratings_by_stars = sorted(stars_distribution.items(), key=lambda x: x[0], reverse=True)
     
     context = {
         'listing': listing,
         'related_listings': related_listings,
+        'ratings_by_stars': ratings_by_stars, # Certifique-se de passar isso se usar no template
     }
     
     return render(request, 'listings/listing_detail.html', context)
