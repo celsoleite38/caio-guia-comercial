@@ -147,13 +147,15 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 # Configurações de Envio de E-mail (SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'                # Se usar Gmail (ou o Host do seu provedor)
-EMAIL_PORT = 587                             # Porta padrão para TLS
-EMAIL_USE_TLS = True                         # Garante criptografia na conexão
-EMAIL_HOST_USER = 'caioindica@clubeorange.com.br'     # O e-mail que vai disparar as mensagens
-EMAIL_HOST_PASSWORD = 'sua-senha-de-app'     # Senha ou "Senha de App" gerada no provedor
+EMAIL_BACKEND     = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST        = 'smtp.titan.email'
+EMAIL_PORT        = 465
+EMAIL_USE_SSL     = True     # SSL direto na porta 465
+EMAIL_USE_TLS     = False    # nunca os dois juntos
+EMAIL_HOST_USER   = 'caioindica@clubeorange.com.br'
+EMAIL_HOST_PASSWORD = 'Caio#2620'
 DEFAULT_FROM_EMAIL = 'Caio Indica <caioindica@clubeorange.com.br>'
+EMAIL_TIMEOUT     = 10
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
