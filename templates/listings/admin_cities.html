@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar Cidades - Caio Indica{% endblock %}
+
+{% block content %}
+<div class="container-lg py-5 fade-in-up">
+    <div class="mb-5">
+        <h2 class="text-primary mb-2"><i class="fas fa-map-marker-alt"></i> Gerenciar Cidades</h2>
+        <p class="text-muted">Adicione ou remova as cidades do Guia Comercial</p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card p-4">
+                <h4 class="card-title mb-4"><i class="fas fa-plus-circle"></i> Nova Cidade</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="nome" class="form-label">Nome da Cidade</label>
+                        <input type="text" class="form-control" id="nome" name="nome" placeholder="Ex: São Paulo" required>
+                    </div>
+                    <div class="mb-4">
+                        <label for="estado" class="form-label">Estado (UF)</label>
+                        <input type="text" class="form-control" id="estado" name="estado" placeholder="Ex: SP" maxlength="2">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save"></i> Cadastrar Cidade
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card p-4">
+                <h4 class="card-title mb-4"><i class="fas fa-th-list"></i> Cidades Cadastradas</h4>
+                
+                {% if cities %}
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                            <thead>
+                                <tr class="text-primary border-bottom border-secondary">
+                                    <th scope="col">Cidade</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col" class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for city in cities %}
+                                    <tr class="border-bottom rgba(215, 236, 240, 0.8)">
+                                        <td class="fw-bold">{{ city.nome }}</td>
+                                        <td><span class="badge badge-warning text-uppercase" style="color: #faf8f8;">{{ city.estado|default:"--" }}</span></td>
+                                        <td class="text-end">
+                                            <form action="{% url 'delete_city' city.id %}" method="POST" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir esta cidade?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm px-2">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">Nenhuma cidade cadastrada ainda.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i> Voltar ao Painel
+        </a>
+    </div>
+</div>
+{% endblock %}

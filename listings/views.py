@@ -9,15 +9,13 @@ from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
-from .models import Banner, Listing, ListingImage, Category, AdminLog, Cidade, Anunciante
+from .models import Banner, Listing, ListingImage, Category, AdminLog, Cidade, Anunciante, Cidade
 from .forms import ListingForm, CadastroAnuncianteForm
 import secrets
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
 from django.http import Http404
-
-
 
 
 GALERIA_MAX_FOTOS = 5
@@ -158,8 +156,6 @@ def home(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
-
-
 
 def listing_detail(request, slug):
     # 1. Busca o anúncio apenas pelo slug para não dar 404 imediato
@@ -526,3 +522,38 @@ def ativar_conta_anunciante(request, token):
     # Redireciona para a tela de login com uma mensagem de sucesso
     messages.success(request, "Sua conta foi ativada com sucesso! Agora você pode fazer login.")
     return redirect('login') # Altere para o nome da sua rota de login, se for diferente
+
+
+@login_required
+def admin_cities(request):
+    # Garante que apenas administradores/equipe acessem
+    if not request.user.is_staff:
+        return redirect('home')
+        
+    if request.method == 'POST':
+        nome = request.POST.get('nome', '').strip()
+        estado = request.POST.get('estado', '').strip()
+        
+        if nome:
+            # Cria a cidade no banco
+            Cidade.objects.create(nome=nome, estado=estado) 
+            messages.success(request, f"Cidade '{nome}' cadastrada com sucesso!")
+            return redirect('admin_cities')
+        else:
+            messages.error(request, "O nome da cidade não pode estar vazio.")
+
+    # Busca todas as cidades cadastradas
+    cities = Cidade.objects.all().order_by('nome')
+    
+    return render(request, 'listings/admin_cities.html', {'cities': cities})
+
+@login_required
+def delete_city(request, city_id):
+    if not request.user.is_staff:
+        return redirect('home')
+        
+    city = get_object_or_404(Cidade, id=city_id)
+    city_name = city.nome
+    city.delete()
+    messages.success(request, f"Cidade '{city_name}' excluída com sucesso!")
+    return redirect('admin_cities')

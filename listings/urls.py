@@ -23,6 +23,9 @@ urlpatterns = [
     path('painel/anuncios/<int:listing_id>/gratis/', views.mark_free, name='mark_free'),
     path('painel/categorias/', views.admin_categories, name='admin_categories'),
     path('painel/categorias/<int:category_id>/deletar/', views.delete_category, name='delete_category'),
+    #cidades
+    path('painel/cidades/', views.admin_cities, name='admin_cities'),
+    path('painel/cidades/<int:city_id>/deletar/', views.delete_city, name='delete_city'),
     
     # Rotas de Avaliacoes
     path('anuncio/<int:listing_id>/avaliar/', rating_views.create_rating, name='create_rating'),
