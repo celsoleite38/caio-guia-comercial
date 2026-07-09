@@ -99,16 +99,15 @@
                                 {% endif %}
 
                                 {% if listing.status == 'approved' %}
-                                    {% if listing.plan == 'paid' %}
-                                        {# Botão aparece se pago ativo OU pago vencido — ambos podem ser rebaixados manualmente #}
+                                    {% if listing.esta_destacado %}
                                         <form method="post" action="{% url 'mark_free' listing.id %}" style="display: inline;">
                                             {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Rebaixar para Gratuito">
+                                            <button type="submit" class="btn btn-outline-primary" title="Marcar como Gratuito">
                                                 <i class="fas fa-minus-circle"></i>
                                             </button>
                                         </form>
                                     {% else %}
-                                        <button type="button" class="btn btn-outline-warning btn-sm" title="Marcar como Pago" data-bs-toggle="modal" data-bs-target="#markPaidModal{{ listing.id }}">
+                                        <button type="button" class="btn btn-outline-warning" title="Marcar como Pago" data-bs-toggle="modal" data-bs-target="#markPaidModal{{ listing.id }}">
                                             <i class="fas fa-star"></i>
                                         </button>
                                     {% endif %}
@@ -202,7 +201,7 @@
     </div>
     {% endif %}
 
-    {% if listing.status == 'approved' and listing.plan == 'free' %}
+    {% if listing.status == 'approved' and not listing.esta_destacado %}
     <div class="modal fade" id="markPaidModal{{ listing.id }}" tabindex="-1" aria-labelledby="markPaidLabel{{ listing.id }}" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content" style="background: var(--card-bg); border: 1px solid rgba(0, 212, 255, 0.2);">
