@@ -229,53 +229,21 @@ def admin_listings(request):
     if search_query:
         listings = listings.filter(
             Q(business_name__icontains=search_query) |
-            Q(owner__username__icontains=search_query)
+            Q(owner__username__icontains=search_query)  # Corrigido: era owner_email
         )
     
     listings = listings.order_by('-created_at')
     paginator = Paginator(listings, 10)
     page_number = request.GET.get('page', 1)
     listings_page = paginator.get_page(page_number)
-
-    # Usuários anunciantes — exclui superusuários e staff do painel
-    from django.contrib.auth.models import User
-    usuarios = (
-        User.objects
-        .filter(is_superuser=False, is_staff=False)
-        .order_by('-date_joined')
-        .prefetch_related('listings')
-    )
-
+    
     context = {
         'listings': listings_page,
         'status_filter': status_filter,
         'search_query': search_query,
-        'usuarios': usuarios,
     }
     
     return render(request, 'listings/admin_listings.html', context)
-
-
-@login_required
-@user_passes_test(is_admin)
-@require_POST
-def toggle_user_status(request, user_id):
-    from django.contrib.auth.models import User
-    usuario = get_object_or_404(User, id=user_id, is_superuser=False, is_staff=False)
-    acao = request.POST.get('acao')
-
-    if acao == 'desativar':
-        usuario.is_active = False
-        usuario.save(update_fields=['is_active'])
-        messages.warning(request, f'Usuário "{usuario.username}" desativado. Ele não poderá mais fazer login.')
-    elif acao == 'ativar':
-        usuario.is_active = True
-        usuario.save(update_fields=['is_active'])
-        messages.success(request, f'Usuário "{usuario.username}" reativado com sucesso.')
-    else:
-        messages.error(request, 'Ação inválida.')
-
-    return redirect('admin_listings')
 
 
 @login_required
@@ -285,13 +253,13 @@ def approve_listing(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
     listing.status = 'approved'
     listing.save()
-
+    
     AdminLog.objects.create(
         admin=request.user,
         listing=listing,
         action='approve'
     )
-
+    
     messages.success(request, f'Anúncio "{listing.business_name}" aprovado!')
     return redirect('admin_listings')
 

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from listings import views as listings_views
+from listings import views1 as listings_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),

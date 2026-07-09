@@ -21,7 +21,7 @@ urlpatterns = [
     path('painel/anuncios/<int:listing_id>/rejeitar/', views.reject_listing, name='reject_listing'),
     path('painel/anuncios/<int:listing_id>/pago/', views.mark_paid, name='mark_paid'),
     path('painel/anuncios/<int:listing_id>/gratis/', views.mark_free, name='mark_free'),
-    path('painel/categorias/', views.admin_categories, name='admin_categories'),
+    path('painel/usuarios/<int:user_id>/toggle/', views.toggle_user_status, name='toggle_user_status'),
     path('painel/categorias/<int:category_id>/deletar/', views.delete_category, name='delete_category'),
     #cidades
     path('painel/cidades/', views.admin_cities, name='admin_cities'),
